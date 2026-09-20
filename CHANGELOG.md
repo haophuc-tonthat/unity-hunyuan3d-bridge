@@ -5,6 +5,20 @@ All notable changes to the Hunyuan3D-2.1 Unity Bridge will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-21
+
+### Added
+- Automatic VRAM cleanup after each inference (`gc.collect()` + `torch.cuda.empty_cache()`).
+- `POST /unload` server endpoint to offload models from GPU to CPU and release VRAM on demand.
+- **FREE VRAM** button in the Unity Editor Generator window (Server section).
+- `UnloadVramAsync` method in `HunyuanApiClient` for programmatic VRAM release.
+- `HunyuanUnloadResponse` and `UnloadVramResult` data types.
+
+### Changed
+- `patch_hunyuan_server.py` now applies 5 patches (was 3): added VRAM cleanup helper injection and `/unload` endpoint injection.
+- Colab notebook Step 4 updated to include VRAM cleanup and `/unload` endpoint patches.
+
+---
 ## [1.0.0] - 2026-09-21
 
 ### Added

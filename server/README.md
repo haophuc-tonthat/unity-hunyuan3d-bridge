@@ -78,3 +78,5 @@ The included `patch_hunyuan_server.py` resolves two critical upstream constraint
 1. **Inference Steps Limit:** Upstream `api_models.py` restricts `num_inference_steps <= 20`. The patch expands this to `<= 50` to allow production-quality detail.
 2. **Shape-Only VRAM Protection:** Upstream unconditionally loads multi-view inpainting texture checkpoints that crash machines lacking `RealESRGAN_x4plus.pth` or on <= 10GB GPUs. The patch wraps texturing in graceful fallbacks, ensuring rock-solid shape generation.
 3. **Windows File Lock:** Fixes a Windows `[WinError 32]` crash when cleaning cache while active logs are open.
+4. **Automatic VRAM Cleanup:** Adds `gc.collect()` + `torch.cuda.empty_cache()` after every inference to prevent VRAM from accumulating across generations.
+5. **On-Demand VRAM Unload (`POST /unload`):** Injects an endpoint that offloads all model pipelines from GPU to CPU and frees CUDA cache. Accessible from the Unity Editor via the **FREE VRAM** button in the Generator window. Models automatically reload on the next generation request.

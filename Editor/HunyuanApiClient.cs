@@ -31,6 +31,13 @@ namespace Hunyuan3DBridge.Editor
         public string Error;
     }
 
+    public struct UnloadVramResult
+    {
+        public bool Success;
+        public float FreedMb;
+        public string Error;
+    }
+
     /// <summary>
     /// Asynchronous UnityWebRequest HTTP client for the official Hunyuan3D-2.1 FastAPI server.
     /// Safely dispatched via EditorApplication.update to avoid blocking the main Unity thread.
@@ -213,6 +220,59 @@ namespace Hunyuan3DBridge.Editor
             EditorApplication.update += UpdateHook;
         }
 
+
+        public static Task<UnloadVramResult> UnloadVramAsync(string baseUrl, int timeoutSeconds = 30)
+        {
+            var cleanUrl = NormalizeUrl(baseUrl) + "/unload";
+            var tcs = new TaskCompletionSource<UnloadVramResult>();
+
+            var req = new UnityWebRequest(cleanUrl, "POST")
+            {
+                downloadHandler = new DownloadHandlerBuffer(),
+                timeout = timeoutSeconds
+            };
+            req.SetRequestHeader("Content-Type", "application/json");
+
+            SendEditorRequest(req, () =>
+            {
+                var res = new UnloadVramResult();
+                try
+                {
+                    if (req.result != UnityWebRequest.Result.Success)
+                    {
+                        res.Success = false;
+                        res.Error = $"POST /unload failed ({req.responseCode}): {req.error}";
+                    }
+                    else
+                    {
+                        var json = req.downloadHandler.text;
+                        var parsed = JsonUtility.FromJson<HunyuanUnloadResponse>(json);
+                        if (parsed != null && parsed.status == "ok")
+                        {
+                            res.Success = true;
+                            res.FreedMb = parsed.freed_mb;
+                        }
+                        else
+                        {
+                            res.Success = false;
+                            res.Error = parsed?.message ?? $"Unexpected unload response: {json}";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    res.Success = false;
+                    res.Error = ex.Message;
+                }
+                finally
+                {
+                    req.Dispose();
+                    tcs.TrySetResult(res);
+                }
+            });
+
+            return tcs.Task;
+        }
         private static string NormalizeUrl(string url)
         {
             if (string.IsNullOrEmpty(url)) return "http://127.0.0.1:8081";

@@ -25,6 +25,14 @@ namespace Hunyuan3DBridge.Editor
         public string worker_id;
     }
 
+    [Serializable]
+    public sealed class HunyuanUnloadResponse
+    {
+        public string status;
+        public float freed_mb;
+        public string message;
+    }
+
     /// <summary>
     /// Deterministic sidecar audit report for reproduction and QA tracking.
     /// Saved alongside generated GLB files in Reports/.

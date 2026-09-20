@@ -61,6 +61,7 @@ namespace Hunyuan3DBridge.Editor
         // Output & Audit
         private string lastOutputGlbPath = "";
         private string lastOutputReportPath = "";
+        private bool isUnloading = false;
         private GlbValidationResult lastGlbValidation;
 
         [MenuItem("Tools/Hunyuan3D/Generator")]
@@ -164,6 +165,15 @@ namespace Hunyuan3DBridge.Editor
             {
                 Application.OpenURL(serverUrl.TrimEnd('/') + "/docs");
             }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUI.enabled = serverStatus == ServerStatus.Online || serverStatus == ServerStatus.Completed;
+            if (GUILayout.Button(isUnloading ? "FREEING VRAM..." : "FREE VRAM", GUILayout.Height(24)))
+            {
+                RequestUnloadVram();
+            }
+            GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
@@ -658,6 +668,39 @@ namespace Hunyuan3DBridge.Editor
             finally
             {
                 isGenerating = false;
+                Repaint();
+            }
+        }
+
+        private async void RequestUnloadVram()
+        {
+            if (isUnloading) return;
+            isUnloading = true;
+            serverMessage = "Requesting server to free GPU memory...";
+            Repaint();
+
+            try
+            {
+                var result = await HunyuanApiClient.UnloadVramAsync(serverUrl);
+                if (result.Success)
+                {
+                    serverMessage = $"VRAM freed: {result.FreedMb:F1} MB released. Models will reload on next generation.";
+                    Debug.Log($"[Hunyuan3DBridge] VRAM unloaded successfully. Freed {result.FreedMb:F1} MB.");
+                }
+                else
+                {
+                    serverMessage = $"VRAM unload failed: {result.Error}";
+                    Debug.LogWarning($"[Hunyuan3DBridge] VRAM unload failed: {result.Error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                serverMessage = $"VRAM unload error: {ex.Message}";
+                Debug.LogError($"[Hunyuan3DBridge] VRAM unload error: {ex.Message}");
+            }
+            finally
+            {
+                isUnloading = false;
                 Repaint();
             }
         }
