@@ -1,0 +1,26 @@
+{
+  "name": "com.community.hunyuan3d-bridge",
+  "version": "1.0.0",
+  "displayName": "Hunyuan3D-2.1 Unity Bridge",
+  "description": "Production-ready Unity Editor Bridge for Tencent Hunyuan3D-2.1. Generate high-fidelity 3D meshes (glTF 2.0 binary) from single concept images directly within Unity Editor using local or remote GPU inference.",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "keywords": [
+    "ai",
+    "3d",
+    "mesh",
+    "hunyuan3d",
+    "generator",
+    "gltf",
+    "editor-tool",
+    "deep-learning"
+  ],
+  "author": {
+    "name": "Community Open Source",
+    "url": "https://github.com"
+  },
+  "type": "tool",
+  "license": "MIT",
+  "dependencies": {},
+  "hideInEditor": false
+}

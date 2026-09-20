@@ -1,0 +1,16 @@
+{
+  "name": "com.community.hunyuan3d-bridge.Editor",
+  "rootNamespace": "Hunyuan3DBridge.Editor",
+  "references": [],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,25 @@
+{
+  "name": "com.community.hunyuan3d-bridge.Editor.Tests",
+  "rootNamespace": "Hunyuan3DBridge.Tests",
+  "references": [
+    "com.community.hunyuan3d-bridge.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
