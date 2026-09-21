@@ -1,6 +1,6 @@
 {
   "name": "com.community.hunyuan3d-bridge",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "displayName": "Hunyuan3D-2.1 Unity Bridge",
   "description": "Production-ready Unity Editor Bridge for Tencent Hunyuan3D-2.1. Generate high-fidelity 3D meshes (glTF 2.0 binary) from single concept images directly within Unity Editor using local or remote GPU inference.",
   "unity": "2021.3",
