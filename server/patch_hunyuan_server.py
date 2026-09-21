@@ -112,6 +112,15 @@ def _cleanup_vram():
         unload_marker = "# [Unity Bridge] VRAM unload endpoint"
         if unload_marker not in server_content:
             unload_endpoint = '''
+# [Unity Bridge] Healthcheck & Root endpoints
+@app.get("/")
+async def root():
+    return {"status": "healthy", "message": "Hunyuan3D-2.1 Server is running"}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "worker_id": "hunyuan-worker-1"}
+
 # [Unity Bridge] VRAM unload endpoint
 @app.post("/unload")
 async def unload_vram():

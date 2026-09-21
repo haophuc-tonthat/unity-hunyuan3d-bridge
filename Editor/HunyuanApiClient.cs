@@ -55,14 +55,11 @@ namespace Hunyuan3DBridge.Editor
             SendEditorRequest(req, () =>
             {
                 var res = new HealthCheckResult();
+                bool isFallbackHandled = false;
+
                 try
                 {
-                    if (req.result != UnityWebRequest.Result.Success)
-                    {
-                        res.IsOnline = false;
-                        res.Error = $"HTTP error ({req.responseCode}): {req.error}";
-                    }
-                    else
+                    if (req.result == UnityWebRequest.Result.Success)
                     {
                         var json = req.downloadHandler.text;
                         var parsed = JsonUtility.FromJson<HunyuanHealthResponse>(json);
@@ -74,9 +71,53 @@ namespace Hunyuan3DBridge.Editor
                         }
                         else
                         {
-                            res.IsOnline = false;
-                            res.Error = "Unexpected health response payload.";
+                            res.IsOnline = true;
+                            res.Status = "online";
+                            res.WorkerId = "cloud-worker";
                         }
+                    }
+                    else if (req.responseCode == 404)
+                    {
+                        // Fallback: Tencent upstream api_server.py does not have /health,
+                        // but FastAPI always serves /docs. Check /docs instead.
+                        isFallbackHandled = true;
+                        var docsUrl = NormalizeUrl(baseUrl) + "/docs";
+                        var docsReq = UnityWebRequest.Get(docsUrl);
+                        docsReq.timeout = timeoutSeconds;
+
+                        SendEditorRequest(docsReq, () =>
+                        {
+                            var docsRes = new HealthCheckResult();
+                            try
+                            {
+                                if (docsReq.result == UnityWebRequest.Result.Success)
+                                {
+                                    docsRes.IsOnline = true;
+                                    docsRes.Status = "online";
+                                    docsRes.WorkerId = "cloud-gpu";
+                                }
+                                else
+                                {
+                                    docsRes.IsOnline = false;
+                                    docsRes.Error = $"Server error ({docsReq.responseCode}): {docsReq.error}";
+                                }
+                            }
+                            catch (Exception exDocs)
+                            {
+                                docsRes.IsOnline = false;
+                                docsRes.Error = exDocs.Message;
+                            }
+                            finally
+                            {
+                                docsReq.Dispose();
+                                tcs.TrySetResult(docsRes);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.IsOnline = false;
+                        res.Error = $"HTTP error ({req.responseCode}): {req.error}";
                     }
                 }
                 catch (Exception ex)
@@ -87,7 +128,10 @@ namespace Hunyuan3DBridge.Editor
                 finally
                 {
                     req.Dispose();
-                    tcs.TrySetResult(res);
+                    if (!isFallbackHandled)
+                    {
+                        tcs.TrySetResult(res);
+                    }
                 }
             });
 
